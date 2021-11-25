@@ -50,9 +50,9 @@ contract NameRegistry {
     function register(string memory name, bytes32 salt) public payable {
         (address owner, ) = ownerAndExpirationTime(name);
 
+        RegistrationInfo storage info = registrations[name];
         //extend reservation if already owned
         if(owner == msg.sender) {
-           RegistrationInfo storage info = registrations[name];
            info.expiration = block.timestamp + registrationPeriod;
            if(msg.value > 0) require(payable(msg.sender).send(msg.value));
            return;
@@ -62,8 +62,8 @@ contract NameRegistry {
         bytes32 hashOfNameAndSalt = keccak256(abi.encodePacked(name, salt));
         uint preregTimestamp = preRegistrations[keccak256(abi.encodePacked(msg.sender, hashOfNameAndSalt))];
         require(preregTimestamp != 0, "notPreregistered");
-        uint earliestPrereg = registrations[name].preregisterTimestamp;
-        require(earliestPrereg == 0 || preregTimestamp <= earliestPrereg, "notEarliestPrereg");
+        uint earliestPrereg = info.preregisterTimestamp;
+        require(earliestPrereg == 0 || preregTimestamp <= earliestPrereg || block.timestamp > info.expiration, "notEarliestPrereg");
 
         //check cost
         uint cost = costOfName(name); 
