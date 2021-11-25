@@ -41,10 +41,9 @@ contract NameRegistry {
         return (info.owner, info.expiration);
     }
 
-    function preRegister(bytes32 hashOfNameAndSalt) public {
-        bytes32 key = keccak256(abi.encodePacked(msg.sender, hashOfNameAndSalt));
-        require(preRegistrations[key] == 0, "alreadyPreregistered");
-        preRegistrations[key] = block.timestamp;
+    function preRegister(bytes32 hashOfNameAddressAndSalt) public {
+        require(preRegistrations[hashOfNameAddressAndSalt] == 0, "alreadyPreregistered");
+        preRegistrations[hashOfNameAddressAndSalt] = block.timestamp;
     }
 
     function register(string memory name, bytes32 salt) public payable {
@@ -59,8 +58,8 @@ contract NameRegistry {
         }
 
         //check that msg.sender is earliest preregister
-        bytes32 hashOfNameAndSalt = keccak256(abi.encodePacked(name, salt));
-        uint preregTimestamp = preRegistrations[keccak256(abi.encodePacked(msg.sender, hashOfNameAndSalt))];
+        bytes32 hashOfNameAddressAndSalt = keccak256(abi.encodePacked(name, msg.sender, salt));
+        uint preregTimestamp = preRegistrations[hashOfNameAddressAndSalt];
         require(preregTimestamp != 0, "notPreregistered");
         uint earliestPrereg = info.preregisterTimestamp;
         require(earliestPrereg == 0 || preregTimestamp <= earliestPrereg || block.timestamp > info.expiration, "notEarliestPrereg");

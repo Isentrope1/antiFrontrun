@@ -3,7 +3,7 @@ The anti-frontrunning mechansim works as follows:
 
 Let's call the real registrant R and the frontrunner F.
 
-R chooses some salt bytes32 and calls NameRegistry.preRegister(hash(name + salt)) which saves record of hash(msg.sender + hash(name + salt)) -> timestamp.
+R chooses some salt bytes32 and calls NameRegistry.preRegister(hash(name + address + salt)) which saves record of hash(name + address + salt) -> timestamp.
 
 Note:
 1. F cannot glean name from preRegister as F doesnt know salt
